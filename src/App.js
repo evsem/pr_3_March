@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import PostService from './API/PostService'
 import Filter from './Components/Filter/Filter'
 import Form from './Components/Form/Form'
 import List from './Components/List/List'
@@ -23,6 +24,14 @@ const App = () => {
   const removePost = (post) => {
     setPosts(posts.filter((p) => p.id !== post.id))
   }
+
+  const fetchingPosts = async () => {
+    let posts = await PostService.getAll()
+    setPosts(posts)
+  }
+  useEffect(() => {
+    fetchingPosts()
+  }, [])
 
   return (
     <div className="App">
