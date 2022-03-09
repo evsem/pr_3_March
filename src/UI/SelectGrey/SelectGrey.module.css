@@ -1,0 +1,9 @@
+.selectGrey {
+  min-width: 142px;
+  border: 2px solid grey;
+  border-radius: 3px;
+  font-family: 'Montserrat';
+  font-size: 20px;
+  font-weight: 400;
+  color: black;
+}
