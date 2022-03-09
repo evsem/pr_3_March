@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react'
+import Filter from './Components/Filter/Filter'
 import Form from './Components/Form/Form'
 import List from './Components/List/List'
 import './Style/App.css'
-import InputGrey from './UI/InputGrey/InputGrey'
-import SelectGrey from './UI/SelectGrey/SelectGrey'
 
 const App = () => {
   let [posts, setPosts] = useState([
@@ -14,8 +13,7 @@ const App = () => {
     { id: 5, title: 'sS', body: 'zz' },
     { id: 6, title: 'cc', body: 'vV' },
   ])
-  let [select, setSelect] = useState('')
-  let [search, setSearch] = useState('')
+  let [filter, setFilter] = useState({ sort: '', query: '' })
 
   const addNewPost = (newPost) => {
     setPosts([...posts, newPost])
@@ -25,38 +23,22 @@ const App = () => {
   }
 
   const sortedPosts = useMemo(() => {
-    if (select) {
-      return [...posts].sort((a, b) => a[select].localeCompare(b[select]))
+    if (filter.sort) {
+      return [...posts].sort((a, b) =>
+        a[filter.sort].localeCompare(b[filter.sort])
+      )
     }
     return posts
-  }, [posts, select])
+  }, [posts, filter.sort])
   const searchedAndSelectedPosts = useMemo(() => {
     return sortedPosts.filter((post) =>
-      post.title.toLowerCase().includes(search)
+      post.title.toLowerCase().includes(filter.query)
     )
-  }, [sortedPosts, search])
-  const sortPosts = (sort) => {
-    setSelect(sort)
-  }
+  }, [filter.query, sortedPosts])
   return (
     <div className="App">
       <Form addPost_Func={addNewPost} />
-
-      <InputGrey
-        type="text"
-        placeholder="Search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <SelectGrey
-        value={select}
-        onChange={sortPosts}
-        defaultValue="Sorting"
-        options={[
-          { value: 'title', name: 'By name' },
-          { value: 'body', name: 'By description' },
-        ]}
-      />
+      <Filter filter={filter} setFilter={setFilter} />
 
       {searchedAndSelectedPosts.length ? (
         <List posts={searchedAndSelectedPosts} removePost={removePost} />
