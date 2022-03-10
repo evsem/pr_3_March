@@ -5,6 +5,7 @@ import Form from './Components/Form/Form'
 import List from './Components/List/List'
 import { usePosts } from './Hooks/usePosts'
 import './Style/App.css'
+import LoaderGrey from './UI/LoaderGrey/LoaderGrey'
 
 const App = () => {
   let [posts, setPosts] = useState([
@@ -37,6 +38,8 @@ const App = () => {
     <div className="App">
       <Form addPost_Func={addNewPost} />
       <Filter filter={filter} setFilter={setFilter} />
+
+      <LoaderGrey />
 
       {searchedAndSelectedPosts.length ? (
         <List posts={searchedAndSelectedPosts} removePost={removePost} />
