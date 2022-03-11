@@ -3,9 +3,12 @@ import PostService from './API/PostService'
 import Filter from './Components/Filter/Filter'
 import Form from './Components/Form/Form'
 import List from './Components/List/List'
+import Pagination from './Components/Pagination/Pagination'
+import { useFetching } from './Hooks/useFetching'
 import { usePosts } from './Hooks/usePosts'
 import './Style/App.css'
 import LoaderGrey from './UI/LoaderGrey/LoaderGrey'
+import { getPageCount } from './Utils/Pages'
 
 const App = () => {
   let [posts, setPosts] = useState([
@@ -18,6 +21,9 @@ const App = () => {
   ])
   let [filter, setFilter] = useState({ sort: '', query: '' })
   let searchedAndSelectedPosts = usePosts(posts, filter.sort, filter.query)
+  let [totalPages, setTotalPages] = useState(0)
+  let [limit, setLimit] = useState(10)
+  let [page, setPage] = useState(1)
 
   const addNewPost = (newPost) => {
     setPosts([...posts, newPost])
@@ -26,26 +32,33 @@ const App = () => {
     setPosts(posts.filter((p) => p.id !== post.id))
   }
 
-  const fetchingPosts = async () => {
-    let posts = await PostService.getAll()
-    setPosts(posts)
-  }
+  let [fetchPosts, isPostLoading, postError] = useFetching(async () => {
+    let response = await PostService.getAll(limit, page)
+    setPosts(response.data)
+    let allCountPosts = response.headers['x-total-count']
+    setTotalPages(getPageCount(allCountPosts, limit))
+  })
+
   useEffect(() => {
-    fetchingPosts()
-  }, [])
+    fetchPosts()
+  }, [page])
+
+  const changePost = (page) => {
+    setPage(page)
+  }
 
   return (
     <div className="App">
       <Form addPost_Func={addNewPost} />
       <Filter filter={filter} setFilter={setFilter} />
 
-      <LoaderGrey />
-
-      {searchedAndSelectedPosts.length ? (
-        <List posts={searchedAndSelectedPosts} removePost={removePost} />
+      {isPostLoading ? (
+        <LoaderGrey />
       ) : (
-        <h2 className="App_titleWarning">No posts</h2>
+        <List posts={searchedAndSelectedPosts} removePost={removePost} />
       )}
+
+      <Pagination totalPages={totalPages} changePosts={changePost} />
     </div>
   )
 }
